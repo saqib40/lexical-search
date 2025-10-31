@@ -3,6 +3,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -10,11 +11,22 @@ import java.util.Scanner;
 class Main {
     static HashMap<String, HashSet<String>> store = new HashMap<>();
 
+    static final HashSet<String> stopWords = new HashSet<>(
+        Arrays.asList(
+            "a", "an", "and", "are", "as", "at", "be", "by", "for", 
+            "from", "has", "he", "in", "is", "it", "its", "of", 
+            "on", "that", "the", "to", "was", "were", "will", "with"
+        )
+    );
+
     static ArrayList<String> tokeniseAndNormalise(String str) {
         ArrayList<String> ans = new ArrayList<>();
         Scanner scanner = new Scanner(str);
         while(scanner.hasNext()) {
-            ans.add(scanner.next().toLowerCase());
+            String word = scanner.next().toLowerCase();
+            if (!stopWords.contains(word)) {
+                ans.add(word);
+            }
         }
         return ans;
     }
