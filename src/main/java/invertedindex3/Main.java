@@ -1,4 +1,7 @@
+package invertedindex3;
+
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,26 +11,36 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+
 class Main {
     static HashMap<String, HashSet<String>> store = new HashMap<>();
 
-    static final HashSet<String> stopWords = new HashSet<>(
-        Arrays.asList(
-            "a", "an", "and", "are", "as", "at", "be", "by", "for", 
-            "from", "has", "he", "in", "is", "it", "its", "of", 
-            "on", "that", "the", "to", "was", "were", "will", "with"
-        )
-    );
+    static Analyzer analyzer = new EnglishAnalyzer();
 
     static ArrayList<String> tokeniseAndNormalise(String str) {
         ArrayList<String> ans = new ArrayList<>();
-        Scanner scanner = new Scanner(str);
-        while(scanner.hasNext()) {
-            String word = scanner.next().toLowerCase();
-            if (!stopWords.contains(word)) {
-                ans.add(word);
+        
+        try (TokenStream tokenStream = analyzer.tokenStream("content", new StringReader(str))) {
+            
+            // Get the attribute that holds the text of the token
+            CharTermAttribute charTerm = tokenStream.addAttribute(CharTermAttribute.class);
+            
+            tokenStream.reset(); // Must reset before you start
+            while (tokenStream.incrementToken()) {
+                // Add the stemmed/normalized token to our list
+                ans.add(charTerm.toString());
             }
+            tokenStream.end(); // Clean up resources
+            
+        } catch (IOException e) {
+            // Handle the exception
+            System.err.println("An error occurred during analysis: " + e.getMessage());
         }
+        
         return ans;
     }
 
@@ -79,11 +92,30 @@ class Main {
     public static void main(String[] args) {
         // seed all docs
         for(int i=1; i<=10; i++) {
-            seedDoc(Paths.get(String.format("../Data/file%d.txt", i)));
+            String resourcePath = String.format("Data/file%d.txt", i);
+            try {
+                // Get the file's URL from the classpath
+                java.net.URL fileUrl = Main.class.getClassLoader().getResource(resourcePath);
+
+                if (fileUrl == null) {
+                    System.err.println("Error: Cannot find file on classpath: " + resourcePath);
+                    continue; // Skip to the next file
+                }
+
+                // Convert the URL to a Path and pass it to your method
+                seedDoc(Paths.get(fileUrl.toURI()));
+
+            } catch (Exception e) {
+                System.err.println("Error reading file: " + resourcePath);
+                e.printStackTrace();
+            }
         }
+        System.out.println("Inverted Index 3");
         ArrayList<String> results1 = Search("quick brown");
         System.out.println(results1);
         ArrayList<String> results2 = Search("a fox");
         System.out.println(results2);
+        ArrayList<String> results4 = Search("run");
+        System.out.println("Results: " + results4);
     }
 }
