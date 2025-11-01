@@ -1,6 +1,7 @@
-package invertedindex2;
+package invertedindex4;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,7 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Scanner;
+import java.util.List;
+import java.util.Properties;
+
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.pipeline.CoreDocument;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 
 class Main {
     static HashMap<String, HashSet<String>> store = new HashMap<>();
@@ -21,13 +27,24 @@ class Main {
         )
     );
 
+    static Properties props;
+    static StanfordCoreNLP pipeline;
+
+    static {
+        props = new Properties();
+        props.setProperty("annotators", "tokenize,ssplit,pos,lemma");
+        pipeline = new StanfordCoreNLP(props);
+    }
+
     static ArrayList<String> tokeniseAndNormalise(String str) {
         ArrayList<String> ans = new ArrayList<>();
-        Scanner scanner = new Scanner(str);
-        while(scanner.hasNext()) {
-            String word = scanner.next().toLowerCase();
-            if (!stopWords.contains(word)) {
-                ans.add(word);
+        
+        CoreDocument document = pipeline.processToCoreDocument(str);
+        
+        for (CoreLabel token : document.tokens()) {
+            String lemma = token.lemma().toLowerCase();
+            if (!stopWords.contains(lemma)) {
+                ans.add(lemma);
             }
         }
         return ans;
@@ -99,11 +116,11 @@ class Main {
                 e.printStackTrace();
             }
         }
-        System.out.println("Inverted Index 2");
+        System.out.println("Inverted Index 3");
         ArrayList<String> results1 = Search("quick brown");
-        System.out.println(results1);
+        System.out.println("Results: " + results1);
         ArrayList<String> results2 = Search("a fox");
-        System.out.println(results2);
+        System.out.println("Results: " + results2);
         ArrayList<String> results4 = Search("run");
         System.out.println("Results: " + results4);
         ArrayList<String> results5 = Search("good programmer");

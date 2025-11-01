@@ -6,10 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Scanner;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.Analyzer;
@@ -117,5 +115,7 @@ class Main {
         System.out.println(results2);
         ArrayList<String> results4 = Search("run");
         System.out.println("Results: " + results4);
+        ArrayList<String> results5 = Search("good programmer");
+        System.out.println("Results: " + results5);
     }
 }

@@ -94,6 +94,8 @@ class Main {
         System.out.println(results2);
         ArrayList<String> results4 = Search("run");
         System.out.println("Results: " + results4);
+        ArrayList<String> results5 = Search("good programmer");
+        System.out.println("Results: " + results5);
     }
     
 }
