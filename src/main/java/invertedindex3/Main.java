@@ -84,7 +84,17 @@ class Main {
                 return new ArrayList<String>(); 
             }
         }
-        return new ArrayList<String>(resultSet);
+        ArrayList<String> fileContents = new ArrayList<>();
+
+        for (String path : resultSet) {
+            try {
+                String content = Files.readString(Paths.get(path));
+                fileContents.add(content);
+            } catch (IOException e) {
+                System.err.println("Error reading file during appending: " + e.getMessage());
+            }
+        }
+        return fileContents;
     }
 
     public static void main(String[] args) {
@@ -108,14 +118,15 @@ class Main {
                 e.printStackTrace();
             }
         }
-        System.out.println("Inverted Index 3");
+        System.out.println("Inverted Index 1");
         ArrayList<String> results1 = Search("quick brown");
-        System.out.println(results1);
+        System.out.println("Lookup for `quick brown`:" + results1);
         ArrayList<String> results2 = Search("a fox");
-        System.out.println(results2);
+        System.out.println("Lookup for `a fox`:" + results2);
         ArrayList<String> results4 = Search("run");
-        System.out.println("Results: " + results4);
+        System.out.println("Lookup for `run`:" + results4);
         ArrayList<String> results5 = Search("good programmer");
-        System.out.println("Results: " + results5);
+        System.out.println("Lookup for `good programmer`:" + results5);
     }
+    
 }
